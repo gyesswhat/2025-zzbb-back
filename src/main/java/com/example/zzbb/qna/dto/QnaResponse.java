@@ -21,5 +21,5 @@ public class QnaResponse {
     private Integer numberOfComments;
     private Integer numberOfLikes;
     private Integer numberOfScraps;
-    private ArrayList<QnaCommentResponse> comments;
+    private ArrayList<CommentDto> comments;
 }
