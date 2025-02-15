@@ -21,4 +21,7 @@ public class User {
 
     @Column
     private String password;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private RefreshToken refreshToken; // 양방향 관계 추가
 }
