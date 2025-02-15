@@ -1,5 +1,7 @@
 package com.example.zzbb.jwt;
 
+import com.example.zzbb.user.entity.User;
+import com.example.zzbb.user.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -21,6 +23,7 @@ public class JwtUtil {
     private Key key;
     private final long accessTokenValidity = 1000 * 60 * 60; // 60분
     private final long refreshTokenValidity = 1000L * 60 * 60 * 24 * 7; // 7일
+    private final UserRepository userRepository;
 
     @PostConstruct
     public void init() {
@@ -62,8 +65,12 @@ public class JwtUtil {
         }
     }
 
-    // ✅ 액세스 토큰 재발급
-    // ✅ 토큰의 유효기간 확인
+    // ✅ username으로 userId 조회
+    public Integer getUserIdByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .map(User::getUserId)
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+    }
 
     // ✅ 헤더에서 토큰 추출
     public String extractToken(String authorizationHeader) {

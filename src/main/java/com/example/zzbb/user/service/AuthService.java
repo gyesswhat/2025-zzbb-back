@@ -3,7 +3,9 @@ package com.example.zzbb.user.service;
 import com.example.zzbb.jwt.JwtUtil;
 import com.example.zzbb.jwt.TokenResponse;
 import com.example.zzbb.user.dto.auth.JoinRequest;
+import com.example.zzbb.user.entity.RefreshToken;
 import com.example.zzbb.user.entity.User;
+import com.example.zzbb.user.repository.RefreshTokenRepository;
 import com.example.zzbb.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,6 +21,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     public TokenResponse join(JoinRequest request) {
         if (isUsernameExists(request.getUsername())) {
@@ -37,6 +40,7 @@ public class AuthService {
         // 토큰 생성
         String accessToken = jwtUtil.generateAccessToken(request.getUsername());
         String refreshToken = jwtUtil.generateRefreshToken(request.getUsername());
+        refreshTokenRepository.save(new RefreshToken(null, user, refreshToken));
         TokenResponse tokenResponse = new TokenResponse(accessToken, refreshToken);
 
         return tokenResponse;  // 회원가입한 user 객체 반환
