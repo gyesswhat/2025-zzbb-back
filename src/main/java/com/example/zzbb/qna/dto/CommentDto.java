@@ -9,8 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class QnaCommentResponse {
-    private Integer commentId;
+public class CommentDto {
     private String body;
-    private Integer userId;
+    private String generatedTime;
 }
