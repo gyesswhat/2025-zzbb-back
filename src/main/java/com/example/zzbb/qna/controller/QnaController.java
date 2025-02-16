@@ -91,7 +91,7 @@ public class QnaController {
     }
 
     @PostMapping(value = "/qna/post", consumes = "multipart/form-data")
-    public ResponseEntity<ApiResponse<?>> postQna(@RequestPart(name = "data") QnaPostRequest request,
+    public ResponseEntity<ApiResponse<?>> postQna(@Valid @RequestPart(name = "data") QnaPostRequest request,
                                                   @RequestPart(name = "file", required = false) List<MultipartFile> multipartFilelist,
                                                   @RequestHeader("Authorization") String authorizationHeader) throws IOException {
         // 1. 필요한 정보 추출

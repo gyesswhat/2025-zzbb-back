@@ -21,6 +21,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class QnaService {
     private final QnaRepository qnaRepository;
+    private final QnaHashtagRepository qnaHashtagRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final LikeRepository likeRepository;
@@ -183,19 +184,22 @@ public class QnaService {
     }
 
     public QnaPostResponse postQna(String username, QnaPostRequest request, List<MultipartFile> multipartFilelist) throws IOException {
-        // 1. 새로운 Qna 생성
+        // 1. 사용자 정보 확인
         User targetUser = userRepository.findByUsername(username).orElse(null);
         if (targetUser == null) return null;
 
+        // 2. 질문 생성
         LocalDateTime localDateTime = LocalDateTime.now();
         String formattedTime = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+        // 3. 태그 처리: 이미 존재하는 태그를 찾거나 새로 생성하여 리스트에 추가
         ArrayList<QnaHashtag> hashtags = new ArrayList<>();
         for (String hashtagTxt : request.getHashtags()) {
-            hashtags.add(new QnaHashtag(
-                    null,
-                    hashtagTxt
-            ));
+            QnaHashtag hashtag = findOrCreateHashtag(hashtagTxt);  // 태그가 이미 있으면 찾고, 없으면 새로 생성
+            hashtags.add(hashtag);
         }
+
+        // 4. Qna 객체 생성
         Qna qna = new Qna(
                 null,
                 request.getTitle(),
@@ -209,23 +213,33 @@ public class QnaService {
                 formattedTime
         );
 
-        // 2. 저장
+        // 5. Qna 저장
         Qna saved = qnaRepository.save(qna);
         if (saved == null) return null;
 
-        // 3. 이미지가 있다면 등록
+        // 6. 이미지가 있다면 S3에 업로드
         List<QnaImage> qnaImages = null;
         if (multipartFilelist != null && !multipartFilelist.isEmpty()) {
             qnaImages = s3Service.addReviewImages(qna, multipartFilelist);
             if (qnaImages == null) return null;
-            qna.setImages(qnaImages);
-            qnaRepository.save(qna);
+            qna.setImages(qnaImages);  // 저장된 이미지 연결
+            qnaRepository.save(qna);    // 다시 저장하여 이미지 정보 반영
         }
 
-        // 3. response로 변환
+        // 7. QnaPostResponse 생성 및 반환
         QnaPostResponse qnaPostResponse = new QnaPostResponse(saved.getQnaId());
-
-        // 4. 반환
         return qnaPostResponse;
     }
+
+    public QnaHashtag findOrCreateHashtag(String tag) {
+        Optional<QnaHashtag> existingHashtag = qnaHashtagRepository.findByTag(tag);
+        if (existingHashtag.isPresent()) {
+            return existingHashtag.get();  // 이미 존재하는 태그 반환
+        } else {
+            QnaHashtag newHashtag = new QnaHashtag();
+            newHashtag.setTag(tag);
+            return qnaHashtagRepository.save(newHashtag);  // 새로 생성하여 저장
+        }
+    }
+
 }
