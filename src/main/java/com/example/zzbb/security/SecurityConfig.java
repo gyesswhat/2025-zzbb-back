@@ -40,6 +40,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/user/login").permitAll()
+                        .requestMatchers("/user/logout").permitAll()
                         .requestMatchers("/user/join").permitAll()
                         .requestMatchers("/user/join/verify/**").permitAll()
                         .requestMatchers("/user/find-password").permitAll()
