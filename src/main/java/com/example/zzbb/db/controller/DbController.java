@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -35,8 +36,8 @@ public class DbController {
     }
 
     @GetMapping("/db/{dbId}")
-    public ResponseEntity<ApiResponse<?>> viewDb() {
-        DbResponse response = dbService.viewDb();
+    public ResponseEntity<ApiResponse<?>> viewDb(@PathVariable("dbId") Integer dbId) {
+        DbResponse response = dbService.viewDb(dbId);
         return response != null?
                 ResponseEntity.ok(ApiResponse.success(response)):
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(404, "데이터가 없습니다."));
