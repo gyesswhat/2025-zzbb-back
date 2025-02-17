@@ -10,6 +10,6 @@ import java.util.ArrayList;
 
 @Repository
 public interface CommentRepository extends JpaRepository<QnaComment, Integer> {
-    @Query("SELECT c FROM QnaComment c WHERE c.qna = :qna ORDER BY c.generatedTime ASC")
+    @Query("SELECT c FROM QnaComment c WHERE c.user = :user ORDER BY c.generatedTime ASC")
     ArrayList<QnaComment> findByUser(User user);
 }
