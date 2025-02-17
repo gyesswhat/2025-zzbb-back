@@ -10,6 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentDto {
+    private String nickname;
     private String body;
     private String generatedTime;
 }

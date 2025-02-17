@@ -16,11 +16,23 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer userId;
 
+    @Column
+    private Boolean isNewbie;
+
     @Column(unique = true)
     private String username;
 
     @Column
+    private String nickname;
+
+    @Column
     private String password;
+
+    @Column
+    private Integer level;
+
+    @Column
+    private Integer score;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private RefreshToken refreshToken; // 양방향 관계 추가
