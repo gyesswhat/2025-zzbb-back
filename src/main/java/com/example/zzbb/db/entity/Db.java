@@ -1,5 +1,6 @@
 package com.example.zzbb.db.entity;
 
+import com.example.zzbb.hashtag.Hashtag;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,7 +35,13 @@ public class Db {
             joinColumns = @JoinColumn(name = "db_id"),
             inverseJoinColumns = @JoinColumn(name = "db_hashtag_id")
     )
-    private List<DbHashtag> dbHashtags = new ArrayList<>();
+    private List<Hashtag> hashtags = new ArrayList<>();
+
+    @OneToMany(mappedBy = "db", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DbLike> dbLikes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "db", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DbScrap> dbScraps = new ArrayList<>();
 
     @Column(nullable = false)
     private String generatedTime;

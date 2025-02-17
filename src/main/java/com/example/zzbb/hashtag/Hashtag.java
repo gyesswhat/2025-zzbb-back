@@ -1,4 +1,4 @@
-package com.example.zzbb.qna.entity;
+package com.example.zzbb.hashtag;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -6,18 +6,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class QnaHashtag {
+public class Hashtag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer qnaHashtagId;
+    private Integer hashTagId;
 
     @Column(nullable = false, unique = true)
     private String tag;

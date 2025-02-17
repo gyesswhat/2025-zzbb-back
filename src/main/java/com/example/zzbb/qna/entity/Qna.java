@@ -1,5 +1,6 @@
 package com.example.zzbb.qna.entity;
 
+import com.example.zzbb.hashtag.Hashtag;
 import com.example.zzbb.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -39,7 +40,7 @@ public class Qna {
             joinColumns = @JoinColumn(name = "qna_id"),
             inverseJoinColumns = @JoinColumn(name = "qna_hashtag_id")
     )
-    private List<QnaHashtag> qnaHashtags = new ArrayList<>();
+    private List<Hashtag> qnaHashtags = new ArrayList<>();
 
     @OneToMany(mappedBy = "qna", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QnaComment> qnaComments = new ArrayList<>();
