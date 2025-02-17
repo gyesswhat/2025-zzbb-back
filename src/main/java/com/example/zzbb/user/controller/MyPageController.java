@@ -2,12 +2,8 @@ package com.example.zzbb.user.controller;
 
 import com.example.zzbb.global.ApiResponse;
 import com.example.zzbb.jwt.JwtUtil;
-import com.example.zzbb.user.dto.auth.MyQuitRequest;
-import com.example.zzbb.user.dto.auth.MyUpdateRequest;
-import com.example.zzbb.user.dto.mypage.MyHistoryResponse;
-import com.example.zzbb.user.dto.mypage.MyQnaResponse;
-import com.example.zzbb.user.dto.mypage.MyScrapResponse;
-import com.example.zzbb.user.dto.mypage.MyStatisticsResponse;
+import com.example.zzbb.user.dto.mypage.*;
+import com.example.zzbb.user.service.AuthService;
 import com.example.zzbb.user.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,6 +16,7 @@ import java.util.ArrayList;
 @RequiredArgsConstructor
 public class MyPageController {
     private final MyPageService myPageService;
+    private final AuthService authService;
     private final JwtUtil jwtUtil;
 
     @GetMapping("/user/my-page/statistics")
@@ -72,22 +69,26 @@ public class MyPageController {
 
     @GetMapping("/user/my-page/badge")
     public ResponseEntity<ApiResponse<?>> getMyBadge(@RequestHeader("Authorization") String authorizationHeader) {
-        return null;
-    }
-
-    @PostMapping("/user/my-page/update")
-    public ResponseEntity<ApiResponse<?>> updateMyProfile(@RequestHeader("Authorization") String authorizationHeader,
-                                                          @RequestBody MyUpdateRequest request) {
-        return null;
-    }
-
-    @PostMapping("/user/my-page/quit")
-    public ResponseEntity<ApiResponse<?>> quit(@RequestHeader("Authorization") String authorizationHeader,
-                                               @RequestBody MyQuitRequest request) {
         // 1. 필요한 정보 추출
         String accessToken = jwtUtil.extractToken(authorizationHeader);
         String username = jwtUtil.extractUsername(accessToken);
         // 2. 서비스에서 처리
-        return null;
+        MyBadgeResponse response = myPageService.getMyBadge(username);
+        return (response != null)?
+                ResponseEntity.ok(ApiResponse.created(response)):
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(500, "뱃지 정보 불러오기에 실패했습니다."));
+    }
+
+    @PostMapping("/user/my-page/quit")
+    public ResponseEntity<ApiResponse<?>> quit(@RequestHeader("Authorization") String authorizationHeader) {
+        // 1. 필요한 정보 추출
+        String accessToken = jwtUtil.extractToken(authorizationHeader);
+        String username = jwtUtil.extractUsername(accessToken);
+        // 2. 서비스에서 처리
+        authService.quit(username);
+        if (authService.isQuited(username))
+            return ResponseEntity.ok(ApiResponse.success(null));
+        else
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(500, "탈퇴에 실패했습니다."));
     }
 }
