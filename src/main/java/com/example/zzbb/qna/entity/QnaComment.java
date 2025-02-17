@@ -12,10 +12,13 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Scrap {
+public class QnaComment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer scrapId;
+    private Integer commentId;
+
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String body;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "qna_id", nullable = false)
@@ -24,4 +27,7 @@ public class Scrap {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @Column(nullable = false)
+    private String generatedTime;
 }

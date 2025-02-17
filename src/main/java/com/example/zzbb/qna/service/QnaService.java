@@ -63,9 +63,9 @@ public class QnaService {
                     qna.getTitle(),
                     qna.getBody(),
                     qnaHashtagResponse,
-                    qna.getComments().size(),
-                    qna.getLikes().size(),
-                    qna.getScraps().size()
+                    qna.getQnaComments().size(),
+                    qna.getQnaLikes().size(),
+                    qna.getQnaScraps().size()
             ));
         }
 
@@ -86,11 +86,11 @@ public class QnaService {
             qnaHashtagResponse.add(hashtag.getTag());
         for (QnaImage qnaImage : qna.getImages())
             qnaImageResponse.add(qnaImage.getUrl());
-        for (Comment comment : qna.getComments())
+        for (QnaComment qnaComment : qna.getQnaComments())
             qnaCommentResponse.add(
                     new CommentDto(
-                            comment.getBody(),
-                            comment.getGeneratedTime()
+                            qnaComment.getBody(),
+                            qnaComment.getGeneratedTime()
             ));
 
         // 2. response 형식으로 변환
@@ -101,9 +101,9 @@ public class QnaService {
                 qna.getBody(),
                 qnaHashtagResponse,
                 qnaImageResponse,
-                qna.getComments().size(),
-                qna.getLikes().size(),
-                qna.getScraps().size(),
+                qna.getQnaComments().size(),
+                qna.getQnaLikes().size(),
+                qna.getQnaScraps().size(),
                 qnaCommentResponse
         );
 
@@ -118,16 +118,16 @@ public class QnaService {
 
         LikeResponse response = new LikeResponse();
 
-        Optional<Likes> existingLike = likeRepository.findByUserIdAndItemId(targetUser, targetQna);
-        if (existingLike.isPresent()) {
-            likeRepository.delete(existingLike.get());
+        Optional<QnaLike> existingQnaLike = likeRepository.findByUserIdAndItemId(targetUser, targetQna);
+        if (existingQnaLike.isPresent()) {
+            likeRepository.delete(existingQnaLike.get());
             response = new LikeResponse(false);
         }
         else {
             // 1. 새로운 Likes 생성
-            Likes like = new Likes(null, targetQna, targetUser);
+            QnaLike like = new QnaLike(null, targetQna, targetUser);
             // 2. 저장
-            Likes saved = likeRepository.save(like);
+            QnaLike saved = likeRepository.save(like);
             if (saved == null) return null;
             else response = new LikeResponse(true);
         }
@@ -143,15 +143,15 @@ public class QnaService {
 
         ScrapResponse response = new ScrapResponse();
 
-        Optional<Scrap> existingScrap = scrapRepository.findByUserIdAndItemId(targetUser, targetQna);
+        Optional<QnaScrap> existingScrap = scrapRepository.findByUserIdAndItemId(targetUser, targetQna);
         if (existingScrap.isPresent()) {
             scrapRepository.delete(existingScrap.get());
             response = new ScrapResponse(false);
         }
         else {
             // 1. 새로운 Scrap 생성
-            Scrap scrap = new Scrap(null, targetQna, targetUser);
-            Scrap saved = scrapRepository.save(scrap);
+            QnaScrap qnaScrap = new QnaScrap(null, targetQna, targetUser);
+            QnaScrap saved = scrapRepository.save(qnaScrap);
             // 2. 반환
             if (saved == null) return null;
             else response = new ScrapResponse(true);
@@ -160,7 +160,7 @@ public class QnaService {
         return response;
     }
 
-    public Comment commentQna(Integer qnaId, String username, QnaCommentRequest request) {
+    public QnaComment commentQna(Integer qnaId, String username, QnaCommentRequest request) {
         // 1. 새로운 Comment 생성
         Qna targetQna = qnaRepository.getReferenceById(qnaId);
         User targetUser = userRepository.findByUsername(username).orElse(null);
@@ -168,7 +168,7 @@ public class QnaService {
 
         LocalDateTime localDateTime = LocalDateTime.now();
         String formattedTime = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        Comment comment = new Comment(
+        QnaComment qnaComment = new QnaComment(
                 null,
                 request.getBody(),
                 targetQna,
@@ -176,7 +176,7 @@ public class QnaService {
                 formattedTime);
 
         // 2. 저장
-        Comment response = commentRepository.save(comment);
+        QnaComment response = commentRepository.save(qnaComment);
         if (response == null) return null;
 
         // 3. 반환
@@ -207,9 +207,9 @@ public class QnaService {
                 targetUser,
                 null,
                 hashtags,
-                new ArrayList<Comment>(),
-                new ArrayList<Likes>(),
-                new ArrayList<Scrap>(),
+                new ArrayList<QnaComment>(),
+                new ArrayList<QnaLike>(),
+                new ArrayList<QnaScrap>(),
                 formattedTime
         );
 

@@ -42,13 +42,13 @@ public class Qna {
     private List<QnaHashtag> qnaHashtags = new ArrayList<>();
 
     @OneToMany(mappedBy = "qna", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>();
+    private List<QnaComment> qnaComments = new ArrayList<>();
 
     @OneToMany(mappedBy = "qna", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Likes> likes = new ArrayList<>();
+    private List<QnaLike> qnaLikes = new ArrayList<>();
 
     @OneToMany(mappedBy = "qna", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Scrap> scraps = new ArrayList<>();
+    private List<QnaScrap> qnaScraps = new ArrayList<>();
 
     @Column(nullable = false)
     private String generatedTime;

@@ -3,12 +3,8 @@ package com.example.zzbb.qna.controller;
 import com.example.zzbb.global.ApiResponse;
 import com.example.zzbb.jwt.JwtUtil;
 import com.example.zzbb.qna.dto.*;
-import com.example.zzbb.qna.entity.Comment;
-import com.example.zzbb.qna.entity.Likes;
-import com.example.zzbb.qna.entity.QnaImage;
-import com.example.zzbb.qna.entity.Scrap;
+import com.example.zzbb.qna.entity.QnaComment;
 import com.example.zzbb.qna.service.QnaService;
-import com.example.zzbb.qna.service.S3Service;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -84,8 +80,8 @@ public class QnaController {
         String accessToken = jwtUtil.extractToken(authorizationHeader);
         String username = jwtUtil.extractUsername(accessToken);
         // 2. 서비스에서 처리
-        Comment comment = qnaService.commentQna(qnaId, username, request);
-        return comment != null?
+        QnaComment qnaComment = qnaService.commentQna(qnaId, username, request);
+        return qnaComment != null?
                 ResponseEntity.ok(ApiResponse.created(null)):
                 ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(500, "댓글 달기에 실패했습니다."));
     }
