@@ -29,9 +29,16 @@ public class AuthService {
         }
 
         // 회원가입
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setPassword(passwordEncoder.encode(request.getPassword())); // 비밀번호 암호화
+        User user = new User(
+                null,
+                request.getIsNewbie(),
+                request.getUsername(),
+                request.getNickname(),
+                passwordEncoder.encode(request.getPassword()),
+                1,
+                0,
+                null
+        );
         User savedUser = userRepository.save(user);
 
         // 자동 로그인 처리
@@ -40,7 +47,9 @@ public class AuthService {
         // 토큰 생성
         String accessToken = jwtUtil.generateAccessToken(request.getUsername());
         String refreshToken = jwtUtil.generateRefreshToken(request.getUsername());
-        refreshTokenRepository.save(new RefreshToken(null, user, refreshToken));
+        RefreshToken refreshTokenEntity = new RefreshToken(null, user, refreshToken);
+        user.setRefreshToken(refreshTokenEntity);
+        refreshTokenRepository.save(refreshTokenEntity);
         TokenResponse tokenResponse = new TokenResponse(accessToken, refreshToken);
 
         return tokenResponse;  // 회원가입한 user 객체 반환
