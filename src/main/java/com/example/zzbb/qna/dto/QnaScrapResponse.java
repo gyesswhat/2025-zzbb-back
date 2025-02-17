@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ScrapResponse {
+public class QnaScrapResponse {
     private Boolean scraped;
 }

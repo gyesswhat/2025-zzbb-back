@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 @Repository
-public interface LikeRepository extends JpaRepository<QnaLike, Integer> {
+public interface QnaLikeRepository extends JpaRepository<QnaLike, Integer> {
     ArrayList<QnaLike> findByUser(User user);
 
     @Query("SELECT l FROM QnaLike l WHERE l.user = :targetUser AND l.qna = :targetQna")

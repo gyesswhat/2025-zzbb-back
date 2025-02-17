@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LikeResponse {
+public class QnaLikeResponse {
     private Boolean liked;
 }

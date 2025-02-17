@@ -53,7 +53,7 @@ public class QnaController {
         String accessToken = jwtUtil.extractToken(authorizationHeader);
         String username = jwtUtil.extractUsername(accessToken);
         // 2. 서비스에서 처리
-        LikeResponse response = qnaService.likeQna(qnaId, username);
+        QnaLikeResponse response = qnaService.likeQna(qnaId, username);
         return response != null?
                 ResponseEntity.ok(ApiResponse.success(response)):
                 ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(500, "좋아요에 실패했습니다."));
@@ -66,7 +66,7 @@ public class QnaController {
         String accessToken = jwtUtil.extractToken(authorizationHeader);
         String username = jwtUtil.extractUsername(accessToken);
         // 2. 서비스에서 처리
-        ScrapResponse response = qnaService.scrapQna(qnaId, username);
+        QnaScrapResponse response = qnaService.scrapQna(qnaId, username);
         return response != null?
                 ResponseEntity.ok(ApiResponse.success(response)):
                 ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(500, "스크랩에 실패했습니다."));
