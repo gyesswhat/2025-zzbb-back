@@ -5,17 +5,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MyQnaResponse {
-    private Integer qnaId;
+public class MyDbScrap {
+    private Integer dbId;
     private String title;
     private String body;
-    private Integer comments;
     private Integer likes;
     private Integer scraps;
+
 }

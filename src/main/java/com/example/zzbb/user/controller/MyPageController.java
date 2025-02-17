@@ -40,7 +40,7 @@ public class MyPageController {
         ArrayList<MyQnaResponse> responses = myPageService.getMyQna(username);
         return (responses != null)?
                 ResponseEntity.ok(ApiResponse.success(responses)):
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(404, "글 불러오기에 실패했습니다."));
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(500, "글 불러오기에 실패했습니다."));
     }
 
     @GetMapping("/user/my-page/history/scrap")
@@ -49,10 +49,10 @@ public class MyPageController {
         String accessToken = jwtUtil.extractToken(authorizationHeader);
         String username = jwtUtil.extractUsername(accessToken);
         // 2. 서비스에서 처리
-        ArrayList<MyScrapResponse> responses = myPageService.getMyScrap(username);
-        return (responses != null)?
-                ResponseEntity.ok(ApiResponse.success(responses)):
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(404, "글 불러오기에 실패했습니다."));
+        MyScrapResponse response = myPageService.getMyScrap(username);
+        return (response != null)?
+                ResponseEntity.ok(ApiResponse.success(response)):
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(500, "글 불러오기에 실패했습니다."));
     }
 
     @GetMapping("/user/my-page/badge")
@@ -67,16 +67,16 @@ public class MyPageController {
                 ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(500, "뱃지 정보 불러오기에 실패했습니다."));
     }
 
-    @PostMapping("/user/my-page/quit")
-    public ResponseEntity<ApiResponse<?>> quit(@RequestHeader("Authorization") String authorizationHeader) {
-        // 1. 필요한 정보 추출
-        String accessToken = jwtUtil.extractToken(authorizationHeader);
-        String username = jwtUtil.extractUsername(accessToken);
-        // 2. 서비스에서 처리
-        authService.quit(username);
-        if (authService.isQuited(username))
-            return ResponseEntity.ok(ApiResponse.success(null));
-        else
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(500, "탈퇴에 실패했습니다."));
-    }
+//    @PostMapping("/user/my-page/quit")
+//    public ResponseEntity<ApiResponse<?>> quit(@RequestHeader("Authorization") String authorizationHeader) {
+//        // 1. 필요한 정보 추출
+//        String accessToken = jwtUtil.extractToken(authorizationHeader);
+//        String username = jwtUtil.extractUsername(accessToken);
+//        // 2. 서비스에서 처리
+//        authService.quit(username);
+//        if (authService.isQuited(username))
+//            return ResponseEntity.ok(ApiResponse.success(null));
+//        else
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(500, "탈퇴에 실패했습니다."));
+//    }
 }

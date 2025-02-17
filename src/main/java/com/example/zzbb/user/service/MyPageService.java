@@ -1,5 +1,6 @@
 package com.example.zzbb.user.service;
 
+import com.example.zzbb.db.entity.Db;
 import com.example.zzbb.db.entity.DbLike;
 import com.example.zzbb.db.entity.DbScrap;
 import com.example.zzbb.db.repository.DbLikeRepository;
@@ -59,14 +60,10 @@ public class MyPageService {
         // 3. response에 담기
         ArrayList<MyQnaResponse> responses = new ArrayList<>();
         for (Qna qna : qnas) {
-            ArrayList<String> qnaImagesResponse = new ArrayList<>();
-            for (QnaImage qnaImage : qna.getImages())
-                qnaImagesResponse.add(qnaImage.getUrl());
             responses.add(new MyQnaResponse(
                     qna.getQnaId(),
                     qna.getTitle(),
                     qna.getBody(),
-                    qnaImagesResponse,
                     qna.getQnaComments().size(),
                     qna.getQnaLikes().size(),
                     qna.getQnaScraps().size()
@@ -76,7 +73,7 @@ public class MyPageService {
         return responses;
     }
 
-    public ArrayList<MyScrapResponse> getMyScrap(String username) {
+    public MyScrapResponse getMyScrap(String username) {
         // 1. 유저 정보 가져오기
         User user = userRepository.findByUsername(username).orElse(null);
         if (user == null) return  null;
@@ -86,24 +83,34 @@ public class MyPageService {
         ArrayList<Qna> qnas = new ArrayList<>();
         for (QnaScrap qnaScrap : qnaScraps) qnas.add(qnaScrap.getQna());
 
-        // 3. response에 담기
-        ArrayList<MyScrapResponse> responses = new ArrayList<>();
-        for (Qna qna : qnas){
-            ArrayList<String> qnaImagesResponse = new ArrayList<>();
-            for (QnaImage qnaImage : qna.getImages())
-                qnaImagesResponse.add(qnaImage.getUrl());
-            responses.add(new MyScrapResponse(
+        // 3. 유저 정보로 Db 가져오기
+        ArrayList<DbScrap> dbScraps = dbScrapRepository.findByUser(user);
+        ArrayList<Db> dbs = new ArrayList<>();
+        for (DbScrap dbScrap : dbScraps) dbs.add(dbScrap.getDb());
+
+        // 4. response에 넣기
+        ArrayList<MyQnaScrap> myQnaScraps = new ArrayList<>();
+        for (Qna qna : qnas)
+            myQnaScraps.add(new MyQnaScrap(
                     qna.getQnaId(),
                     qna.getTitle(),
                     qna.getBody(),
-                    qnaImagesResponse,
                     qna.getQnaComments().size(),
                     qna.getQnaLikes().size(),
                     qna.getQnaScraps().size()
             ));
-        }
-        // 4. 반환
-        return responses;
+        ArrayList<MyDbScrap> myDbScraps = new ArrayList<>();
+        for (Db db: dbs)
+            myDbScraps.add(new MyDbScrap(
+                    db.getDbId(),
+                    db.getTitle(),
+                    db.getBody(),
+                    db.getDbLikes().size(),
+                    db.getDbScraps().size()
+            ));
+
+        MyScrapResponse response = new MyScrapResponse(myQnaScraps, myDbScraps);
+        return response;
     }
 
     public MyBadgeResponse getMyBadge(String username) {
