@@ -16,4 +16,6 @@ public interface QnaLikeRepository extends JpaRepository<QnaLike, Integer> {
 
     @Query("SELECT l FROM QnaLike l WHERE l.user = :targetUser AND l.qna = :targetQna")
     Optional<QnaLike> findByUserIdAndItemId(User targetUser, Qna targetQna);
+
+    void deleteByUser(User user);
 }

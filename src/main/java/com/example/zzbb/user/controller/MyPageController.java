@@ -67,16 +67,13 @@ public class MyPageController {
                 ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(500, "뱃지 정보 불러오기에 실패했습니다."));
     }
 
-//    @PostMapping("/user/my-page/quit")
-//    public ResponseEntity<ApiResponse<?>> quit(@RequestHeader("Authorization") String authorizationHeader) {
-//        // 1. 필요한 정보 추출
-//        String accessToken = jwtUtil.extractToken(authorizationHeader);
-//        String username = jwtUtil.extractUsername(accessToken);
-//        // 2. 서비스에서 처리
-//        authService.quit(username);
-//        if (authService.isQuited(username))
-//            return ResponseEntity.ok(ApiResponse.success(null));
-//        else
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(500, "탈퇴에 실패했습니다."));
-//    }
+    @PostMapping("/user/my-page/quit")
+    public ResponseEntity<ApiResponse<?>> quit(@RequestHeader("Authorization") String authorizationHeader) {
+        // 1. 필요한 정보 추출
+        String accessToken = jwtUtil.extractToken(authorizationHeader);
+        String username = jwtUtil.extractUsername(accessToken);
+        // 2. 서비스에서 처리
+        authService.quit(username);
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
 }

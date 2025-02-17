@@ -34,7 +34,7 @@ public class Qna {
     @OneToMany(mappedBy = "qna", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QnaImage> images = new ArrayList<>();
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "qna_hashtag_mapping",
             joinColumns = @JoinColumn(name = "qna_id"),

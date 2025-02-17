@@ -29,7 +29,7 @@ public class Db {
     @OneToMany(mappedBy = "db", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DbImage> images = new ArrayList<>();
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "db_hashtag_mapping",
             joinColumns = @JoinColumn(name = "db_id"),

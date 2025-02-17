@@ -1,7 +1,13 @@
 package com.example.zzbb.user.service;
 
+import com.example.zzbb.db.repository.DbLikeRepository;
+import com.example.zzbb.db.repository.DbScrapRepository;
 import com.example.zzbb.jwt.JwtUtil;
 import com.example.zzbb.jwt.TokenResponse;
+import com.example.zzbb.qna.repository.CommentRepository;
+import com.example.zzbb.qna.repository.QnaLikeRepository;
+import com.example.zzbb.qna.repository.QnaRepository;
+import com.example.zzbb.qna.repository.QnaScrapRepository;
 import com.example.zzbb.user.dto.auth.JoinRequest;
 import com.example.zzbb.user.entity.RefreshToken;
 import com.example.zzbb.user.entity.User;
@@ -12,6 +18,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +29,12 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final QnaRepository qnaRepository;
+    private final CommentRepository commentRepository;
+    private final QnaLikeRepository qnaLikeRepository;
+    private final QnaScrapRepository qnaScrapRepository;
+    private final DbLikeRepository dbLikeRepository;
+    private final DbScrapRepository dbScrapRepository;
 
     public TokenResponse join(JoinRequest request) {
         if (isUsernameExists(request.getUsername())) {
@@ -58,5 +71,17 @@ public class AuthService {
     public boolean isUsernameExists(String username) {
         Long result = userRepository.existsByUsername(username);
         return result != null && result == 1L;  // 1을 true로, 0을 false로 변환
+    }
+
+    @Transactional
+    public void quit(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+        qnaRepository.deleteByUser(user);
+        qnaLikeRepository.deleteByUser(user);
+        qnaScrapRepository.deleteByUser(user);
+        dbLikeRepository.deleteByUser(user);
+        dbScrapRepository.deleteByUser(user);
+        userRepository.delete(user);
     }
 }
