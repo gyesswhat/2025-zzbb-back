@@ -11,7 +11,7 @@ import java.util.ArrayList;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MyQnaResponse {
+public class MyQnaScrap {
     private Integer qnaId;
     private String title;
     private String body;
