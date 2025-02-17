@@ -16,4 +16,6 @@ public interface DbLikeRepository extends JpaRepository<DbLike, Integer> {
     Optional<DbLike> findByUserIdAndItemId(User targetUser, Db targetDb);
 
     ArrayList<DbLike> findByUser(User user);
+
+    void deleteByUser(User user);
 }

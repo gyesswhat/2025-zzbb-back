@@ -16,4 +16,6 @@ public interface DbScrapRepository extends JpaRepository<DbScrap, Integer> {
     Optional<DbScrap> findByUserIdAndItemId(User targetUser, Db targetDb);
 
     ArrayList<DbScrap> findByUser(User user);
+
+    void deleteByUser(User user);
 }

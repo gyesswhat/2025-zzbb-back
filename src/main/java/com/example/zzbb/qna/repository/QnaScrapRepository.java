@@ -16,4 +16,6 @@ public interface QnaScrapRepository extends JpaRepository<QnaScrap, Integer> {
 
     @Query("SELECT s FROM QnaScrap s WHERE s.user = :targetUser AND s.qna = :targetQna")
     Optional<QnaScrap> findByUserIdAndItemId(User targetUser, Qna targetQna);
+
+    void deleteByUser(User user);
 }

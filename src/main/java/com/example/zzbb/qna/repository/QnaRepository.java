@@ -15,4 +15,6 @@ public interface QnaRepository extends JpaRepository<Qna, Integer> {
     ArrayList<Qna> getLatestQnas(Pageable pageable);
 
     ArrayList<Qna> findByUser(User user);
+
+    void deleteByUser(User user);
 }
