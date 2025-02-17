@@ -65,7 +65,7 @@ public class QnaService {
                     qnaHashtagResponse,
                     qna.getQnaComments().size(),
                     qna.getQnaLikes().size(),
-                    qna.getScraps().size()
+                    qna.getQnaScraps().size()
             ));
         }
 
@@ -103,7 +103,7 @@ public class QnaService {
                 qnaImageResponse,
                 qna.getQnaComments().size(),
                 qna.getQnaLikes().size(),
-                qna.getScraps().size(),
+                qna.getQnaScraps().size(),
                 qnaCommentResponse
         );
 
@@ -143,15 +143,15 @@ public class QnaService {
 
         ScrapResponse response = new ScrapResponse();
 
-        Optional<Scrap> existingScrap = scrapRepository.findByUserIdAndItemId(targetUser, targetQna);
+        Optional<QnaScrap> existingScrap = scrapRepository.findByUserIdAndItemId(targetUser, targetQna);
         if (existingScrap.isPresent()) {
             scrapRepository.delete(existingScrap.get());
             response = new ScrapResponse(false);
         }
         else {
             // 1. 새로운 Scrap 생성
-            Scrap scrap = new Scrap(null, targetQna, targetUser);
-            Scrap saved = scrapRepository.save(scrap);
+            QnaScrap qnaScrap = new QnaScrap(null, targetQna, targetUser);
+            QnaScrap saved = scrapRepository.save(qnaScrap);
             // 2. 반환
             if (saved == null) return null;
             else response = new ScrapResponse(true);
@@ -209,7 +209,7 @@ public class QnaService {
                 hashtags,
                 new ArrayList<QnaComment>(),
                 new ArrayList<QnaLike>(),
-                new ArrayList<Scrap>(),
+                new ArrayList<QnaScrap>(),
                 formattedTime
         );
 

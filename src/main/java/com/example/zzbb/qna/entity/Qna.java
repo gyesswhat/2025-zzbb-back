@@ -48,7 +48,7 @@ public class Qna {
     private List<QnaLike> qnaLikes = new ArrayList<>();
 
     @OneToMany(mappedBy = "qna", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Scrap> scraps = new ArrayList<>();
+    private List<QnaScrap> qnaScraps = new ArrayList<>();
 
     @Column(nullable = false)
     private String generatedTime;

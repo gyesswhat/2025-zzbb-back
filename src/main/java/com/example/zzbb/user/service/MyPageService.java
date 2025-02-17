@@ -33,13 +33,13 @@ public class MyPageService {
         ArrayList<Qna> questions = qnaRepository.findByUser(user);
         ArrayList<QnaComment> qnaComments = commentRepository.findByUser(user);
         ArrayList<QnaLike> qnaLikes = likeRepository.findByUser(user);
-        ArrayList<Scrap> scraps = scrapRepository.findByUser(user);
+        ArrayList<QnaScrap> qnaScraps = scrapRepository.findByUser(user);
 
         // 3. response에 담기
         MyStatisticsResponse response = new MyStatisticsResponse(
                 questions.size(),
                 qnaComments.size(),
-                qnaLikes.size()+scraps.size()
+                qnaLikes.size()+ qnaScraps.size()
         );
         // 4. 반환
         return response;
@@ -52,7 +52,7 @@ public class MyPageService {
 
         // 2. 작성글, 스크랩글 정보 받아오기
         ArrayList<Qna> wroteArticles = qnaRepository.findByUser(user);
-        ArrayList<Scrap> scrapedArticles = scrapRepository.findByUser(user);
+        ArrayList<QnaScrap> scrapedArticles = scrapRepository.findByUser(user);
 
         // 3. response에 담기
         MyHistoryResponse response = new MyHistoryResponse(
@@ -84,7 +84,7 @@ public class MyPageService {
                     qnaImagesResponse,
                     qna.getQnaComments().size(),
                     qna.getQnaLikes().size(),
-                    qna.getScraps().size()
+                    qna.getQnaScraps().size()
             ));
         }
         // 4. 반환
@@ -97,9 +97,9 @@ public class MyPageService {
         if (user == null) return  null;
 
         // 2. 유저 정보로 Qna 가져오기
-        ArrayList<Scrap> scraps = scrapRepository.findByUser(user);
+        ArrayList<QnaScrap> qnaScraps = scrapRepository.findByUser(user);
         ArrayList<Qna> qnas = new ArrayList<>();
-        for (Scrap scrap : scraps) qnas.add(scrap.getQna());
+        for (QnaScrap qnaScrap : qnaScraps) qnas.add(qnaScrap.getQna());
 
         // 3. response에 담기
         ArrayList<MyScrapResponse> responses = new ArrayList<>();
@@ -114,7 +114,7 @@ public class MyPageService {
                     qnaImagesResponse,
                     qna.getQnaComments().size(),
                     qna.getQnaLikes().size(),
-                    qna.getScraps().size()
+                    qna.getQnaScraps().size()
             ));
         }
         // 4. 반환
