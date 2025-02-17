@@ -12,4 +12,5 @@ import lombok.Setter;
 public class BriefDbResponse {
     private Integer dbId;
     private String title;
+    private String generatedTime;
 }
