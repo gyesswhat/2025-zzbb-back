@@ -19,18 +19,6 @@ public class MyPageController {
     private final AuthService authService;
     private final JwtUtil jwtUtil;
 
-    @GetMapping("/user/my-page/statistics")
-    public ResponseEntity<ApiResponse<?>> getMyStatistics(@RequestHeader("Authorization") String authorizationHeader) {
-        // 1. 필요한 정보 추출
-        String accessToken = jwtUtil.extractToken(authorizationHeader);
-        String username = jwtUtil.extractUsername(accessToken);
-        // 2. 서비스에서 처리
-        MyStatisticsResponse response = myPageService.getMyStatistics(username);
-        return (response != null)?
-                ResponseEntity.ok(ApiResponse.success(response)):
-                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(500, "통계를 불러올 수 없습니다."));
-    }
-
     @GetMapping("/user/my-page/history")
     public ResponseEntity<ApiResponse<?>> getMyHistory(@RequestHeader("Authorization") String authorizationHeader) {
         // 1. 필요한 정보 추출
