@@ -12,4 +12,6 @@ import lombok.Setter;
 public class BriefQnaResponse {
     private Integer qnaId;
     private String title;
+    private String image;
+    private String generatedTime;
 }
