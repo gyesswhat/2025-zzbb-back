@@ -16,4 +16,6 @@ public class DbListResponse {
     private String title;
     private String body;
     private ArrayList<String> hashtags;
+    private Integer numberOfLikes;
+    private Integer numberOfScraps;
 }
