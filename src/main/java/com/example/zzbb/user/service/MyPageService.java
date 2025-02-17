@@ -38,12 +38,13 @@ public class MyPageService {
 
         // 2. 작성글, 스크랩글 정보 받아오기
         ArrayList<Qna> wroteArticles = qnaRepository.findByUser(user);
-        ArrayList<QnaScrap> scrapedArticles = qnaScrapRepository.findByUser(user);
+        ArrayList<QnaScrap> scrapedQnas = qnaScrapRepository.findByUser(user);
+        ArrayList<DbScrap> scrapedDbs = dbScrapRepository.findByUser(user);
 
         // 3. response에 담기
         MyHistoryResponse response = new MyHistoryResponse(
                 wroteArticles.size(),
-                scrapedArticles.size()
+                scrapedQnas.size() + scrapedDbs.size()
         );
         // 4. 반환
         return response;
