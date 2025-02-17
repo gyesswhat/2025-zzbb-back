@@ -1,23 +1,35 @@
 package com.example.zzbb.db.service;
 
-import com.example.zzbb.db.dto.BriefDbResponse;
-import com.example.zzbb.db.dto.DbListResponse;
-import com.example.zzbb.db.dto.DbResponse;
+import com.example.zzbb.db.dto.*;
 import com.example.zzbb.db.entity.Db;
-import com.example.zzbb.db.entity.DbHashtag;
 import com.example.zzbb.db.entity.DbImage;
+import com.example.zzbb.db.entity.DbLike;
+import com.example.zzbb.db.entity.DbScrap;
+import com.example.zzbb.db.repository.DbLikeRepository;
 import com.example.zzbb.db.repository.DbRepository;
+import com.example.zzbb.db.repository.DbScrapRepository;
+import com.example.zzbb.hashtag.Hashtag;
+import com.example.zzbb.qna.dto.QnaLikeResponse;
+import com.example.zzbb.qna.dto.QnaScrapResponse;
+import com.example.zzbb.qna.entity.Qna;
+import com.example.zzbb.qna.entity.QnaLike;
+import com.example.zzbb.qna.entity.QnaScrap;
+import com.example.zzbb.user.entity.User;
+import com.example.zzbb.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class DbService {
     private final DbRepository dbRepository;
+    private final DbLikeRepository dbLikeRepository;
+    private final DbScrapRepository dbScrapRepository;
+    private final UserRepository userRepository;
 
     public ArrayList<BriefDbResponse> viewBriefDb() {
         // 1. Db 불러오기
@@ -29,7 +41,8 @@ public class DbService {
         for (Db db : dbs) {
             responses.add(new BriefDbResponse(
                     db.getDbId(),
-                    db.getTitle()
+                    db.getTitle(),
+                    db.getGeneratedTime()
             ));
         }
 
@@ -46,13 +59,15 @@ public class DbService {
         ArrayList<DbListResponse> responses = new ArrayList<>();
         for (Db db: dbs) {
             ArrayList<String> dbHashtagResponse = new ArrayList<>();
-            for (DbHashtag dbHashtag : db.getDbHashtags())
-                dbHashtagResponse.add(dbHashtag.getTag());
+            for (Hashtag hashtag : db.getHashtags())
+                dbHashtagResponse.add(hashtag.getTag());
             responses.add(new DbListResponse(
                     db.getDbId(),
                     db.getTitle(),
                     db.getBody(),
-                    dbHashtagResponse
+                    dbHashtagResponse,
+                    db.getDbLikes().size(),
+                    db.getDbScraps().size()
             ));
         }
 
@@ -67,8 +82,8 @@ public class DbService {
 
         ArrayList<String> dbHashTagResponse = new ArrayList<>();
         ArrayList<String> dbImageResponse = new ArrayList<>();
-        for (DbHashtag dbHashtag : db.getDbHashtags())
-            dbHashTagResponse.add(dbHashtag.getTag());
+        for (Hashtag hashtag : db.getHashtags())
+            dbHashTagResponse.add(hashtag.getTag());
         for (DbImage dbImage : db.getImages())
             dbImageResponse.add(dbImage.getUrl());
 
@@ -78,9 +93,60 @@ public class DbService {
                 db.getTitle(),
                 db.getBody(),
                 dbHashTagResponse,
-                dbImageResponse
+                dbImageResponse,
+                db.getDbLikes().size(),
+                db.getDbScraps().size()
         );
 
+        // 3. 반환
+        return response;
+    }
+
+    public DbLikeResponse likeDb(Integer qnaId, String username) {
+        Db targetDb = dbRepository.getReferenceById(qnaId);
+        User targetUser = userRepository.findByUsername(username).orElse(null);
+        if (targetDb == null || targetUser == null) return null;
+
+        DbLikeResponse response = new DbLikeResponse();
+
+        Optional<DbLike> existingDbLike = dbLikeRepository.findByUserIdAndItemId(targetUser, targetDb);
+        if (existingDbLike.isPresent()) {
+            dbLikeRepository.delete(existingDbLike.get());
+            response = new DbLikeResponse(false);
+        }
+        else {
+            // 1. 새로운 Likes 생성
+            DbLike like = new DbLike(null, targetDb, targetUser);
+            // 2. 저장
+            DbLike saved = dbLikeRepository.save(like);
+            if (saved == null) return null;
+            else response = new DbLikeResponse(true);
+        }
+
+        // 3. 반환
+        return response;
+    }
+
+    public DbScrapResponse scrapDb(Integer qnaId, String username) {
+        Db targetDb = dbRepository.getReferenceById(qnaId);
+        User targetUser = userRepository.findByUsername(username).orElse(null);
+        if (targetDb == null || targetUser == null) return null;
+
+        DbScrapResponse response = new DbScrapResponse();
+
+        Optional<DbScrap> existingDbScrap = dbScrapRepository.findByUserIdAndItemId(targetUser, targetDb);
+        if (existingDbScrap.isPresent()) {
+            dbScrapRepository.delete(existingDbScrap.get());
+            response = new DbScrapResponse(false);
+        }
+        else {
+            // 1. 새로운 Scrap 생성
+            DbScrap dbScrap = new DbScrap(null, targetDb, targetUser);
+            DbScrap saved = dbScrapRepository.save(dbScrap);
+            // 2. 반환
+            if (saved == null) return null;
+            else response = new DbScrapResponse(true);
+        }
         // 3. 반환
         return response;
     }
