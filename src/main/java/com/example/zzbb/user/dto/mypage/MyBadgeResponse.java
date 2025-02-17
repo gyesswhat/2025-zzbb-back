@@ -9,8 +9,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MyStatisticsResponse {
+public class MyBadgeResponse {
+    private Integer level;
+    private String nickname;
     private Integer questions;
     private Integer answers;
-    private Integer responses;
+    private Integer reactions;
 }
