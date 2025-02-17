@@ -16,12 +16,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,7 +50,7 @@ public class AuthController {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String username = userDetails.getUsername();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("유저를 찾는 데 실패했습니다."));
+                .orElseThrow(() -> new BadCredentialsException(""));
 
         refreshTokenRepository.deleteByUser(user);
 
@@ -123,10 +122,5 @@ public class AuthController {
         // 해당 사용자의 리프레시 토큰을 데이터베이스에서 삭제하여 무효화
         refreshTokenRepository.deleteByUser(user);
         return ResponseEntity.ok(ApiResponse.success("로그아웃이 완료되었습니다."));
-    }
-
-    @PostMapping("/user/find-password")
-    public ResponseEntity<ApiResponse<?>> findPassword(@RequestBody FindPwRequest request) {
-        return null;
     }
 }
