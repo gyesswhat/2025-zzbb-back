@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 @Repository
-public interface ScrapRepository extends JpaRepository<QnaScrap, Integer> {
+public interface QnaScrapRepository extends JpaRepository<QnaScrap, Integer> {
     ArrayList<QnaScrap> findByUser(User user);
 
     @Query("SELECT s FROM QnaScrap s WHERE s.user = :targetUser AND s.qna = :targetQna")

@@ -1,5 +1,7 @@
 package com.example.zzbb.qna.service;
 
+import com.example.zzbb.hashtag.Hashtag;
+import com.example.zzbb.hashtag.HashtagRepository;
 import com.example.zzbb.qna.dto.*;
 import com.example.zzbb.qna.entity.*;
 import com.example.zzbb.qna.repository.*;
@@ -21,14 +23,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class QnaService {
     private final QnaRepository qnaRepository;
-    private final QnaHashtagRepository qnaHashtagRepository;
+    private final HashtagRepository hashtagRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
-    private final LikeRepository likeRepository;
-    private final ScrapRepository scrapRepository;
+    private final QnaLikeRepository qnaLikeRepository;
+    private final QnaScrapRepository qnaScrapRepository;
     private final S3Service s3Service;
 
-    // nullpointer 조심하기
     public ArrayList<BriefQnaResponse> viewBriefQna() {
         // 1. Qna 불러오기
         ArrayList<Qna> qnas = qnaRepository.getLatestQnas(PageRequest.of(0, 10));
@@ -39,7 +40,9 @@ public class QnaService {
         for (Qna qna : qnas) {
             responses.add(new BriefQnaResponse(
                     qna.getQnaId(),
-                    qna.getTitle()
+                    qna.getTitle(),
+                    (!qna.getImages().isEmpty())? qna.getImages().get(0).getUrl() : null,
+                    qna.getGeneratedTime()
             ));
         }
 
@@ -56,8 +59,8 @@ public class QnaService {
         ArrayList<QnaListResponse> responses = new ArrayList<>();
         for (Qna qna : qnas) {
             ArrayList<String> qnaHashtagResponse = new ArrayList<>();
-            for (QnaHashtag qnaHashtag : qna.getQnaHashtags())
-                qnaHashtagResponse.add(qnaHashtag.getTag());
+            for (Hashtag hashtag : qna.getQnaHashtags())
+                qnaHashtagResponse.add(hashtag.getTag());
             responses.add(new QnaListResponse(
                     qna.getQnaId(),
                     qna.getTitle(),
@@ -82,13 +85,14 @@ public class QnaService {
         ArrayList<String> qnaHashtagResponse = new ArrayList<>();
         ArrayList<String> qnaImageResponse = new ArrayList<>();
         ArrayList<CommentDto> qnaCommentResponse = new ArrayList<>();
-        for (QnaHashtag hashtag : qna.getQnaHashtags())
+        for (Hashtag hashtag : qna.getQnaHashtags())
             qnaHashtagResponse.add(hashtag.getTag());
         for (QnaImage qnaImage : qna.getImages())
             qnaImageResponse.add(qnaImage.getUrl());
         for (QnaComment qnaComment : qna.getQnaComments())
             qnaCommentResponse.add(
                     new CommentDto(
+                            qnaComment.getUser().getNickname(),
                             qnaComment.getBody(),
                             qnaComment.getGeneratedTime()
             ));
@@ -111,50 +115,50 @@ public class QnaService {
         return response;
     }
 
-    public LikeResponse likeQna(Integer qnaId, String username) {
+    public QnaLikeResponse likeQna(Integer qnaId, String username) {
         Qna targetQna = qnaRepository.getReferenceById(qnaId);
         User targetUser = userRepository.findByUsername(username).orElse(null);
         if (targetQna == null || targetUser == null) return null;
 
-        LikeResponse response = new LikeResponse();
+        QnaLikeResponse response = new QnaLikeResponse();
 
-        Optional<QnaLike> existingQnaLike = likeRepository.findByUserIdAndItemId(targetUser, targetQna);
+        Optional<QnaLike> existingQnaLike = qnaLikeRepository.findByUserIdAndItemId(targetUser, targetQna);
         if (existingQnaLike.isPresent()) {
-            likeRepository.delete(existingQnaLike.get());
-            response = new LikeResponse(false);
+            qnaLikeRepository.delete(existingQnaLike.get());
+            response = new QnaLikeResponse(false);
         }
         else {
             // 1. 새로운 Likes 생성
             QnaLike like = new QnaLike(null, targetQna, targetUser);
             // 2. 저장
-            QnaLike saved = likeRepository.save(like);
+            QnaLike saved = qnaLikeRepository.save(like);
             if (saved == null) return null;
-            else response = new LikeResponse(true);
+            else response = new QnaLikeResponse(true);
         }
 
         // 3. 반환
         return response;
     }
 
-    public ScrapResponse scrapQna(Integer qnaId, String username) {
+    public QnaScrapResponse scrapQna(Integer qnaId, String username) {
         Qna targetQna = qnaRepository.getReferenceById(qnaId);
         User targetUser = userRepository.findByUsername(username).orElse(null);
         if (targetQna == null || targetUser == null) return null;
 
-        ScrapResponse response = new ScrapResponse();
+        QnaScrapResponse response = new QnaScrapResponse();
 
-        Optional<QnaScrap> existingScrap = scrapRepository.findByUserIdAndItemId(targetUser, targetQna);
+        Optional<QnaScrap> existingScrap = qnaScrapRepository.findByUserIdAndItemId(targetUser, targetQna);
         if (existingScrap.isPresent()) {
-            scrapRepository.delete(existingScrap.get());
-            response = new ScrapResponse(false);
+            qnaScrapRepository.delete(existingScrap.get());
+            response = new QnaScrapResponse(false);
         }
         else {
             // 1. 새로운 Scrap 생성
             QnaScrap qnaScrap = new QnaScrap(null, targetQna, targetUser);
-            QnaScrap saved = scrapRepository.save(qnaScrap);
+            QnaScrap saved = qnaScrapRepository.save(qnaScrap);
             // 2. 반환
             if (saved == null) return null;
-            else response = new ScrapResponse(true);
+            else response = new QnaScrapResponse(true);
         }
         // 3. 반환
         return response;
@@ -186,16 +190,17 @@ public class QnaService {
     public QnaPostResponse postQna(String username, QnaPostRequest request, List<MultipartFile> multipartFilelist) throws IOException {
         // 1. 사용자 정보 확인
         User targetUser = userRepository.findByUsername(username).orElse(null);
-        if (targetUser == null) return null;
+        if (targetUser == null || !targetUser.getIsNewbie()) return null;
 
         // 2. 질문 생성
         LocalDateTime localDateTime = LocalDateTime.now();
         String formattedTime = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
         // 3. 태그 처리: 이미 존재하는 태그를 찾거나 새로 생성하여 리스트에 추가
-        ArrayList<QnaHashtag> hashtags = new ArrayList<>();
+        ArrayList<Hashtag> hashtags = new ArrayList<>();
         for (String hashtagTxt : request.getHashtags()) {
-            QnaHashtag hashtag = findOrCreateHashtag(hashtagTxt);  // 태그가 이미 있으면 찾고, 없으면 새로 생성
+            Hashtag hashtag = hashtagRepository.findByTag(hashtagTxt).orElse(null);
+            if (hashtag == null) return null;
             hashtags.add(hashtag);
         }
 
@@ -229,17 +234,6 @@ public class QnaService {
         // 7. QnaPostResponse 생성 및 반환
         QnaPostResponse qnaPostResponse = new QnaPostResponse(saved.getQnaId());
         return qnaPostResponse;
-    }
-
-    public QnaHashtag findOrCreateHashtag(String tag) {
-        Optional<QnaHashtag> existingHashtag = qnaHashtagRepository.findByTag(tag);
-        if (existingHashtag.isPresent()) {
-            return existingHashtag.get();  // 이미 존재하는 태그 반환
-        } else {
-            QnaHashtag newHashtag = new QnaHashtag();
-            newHashtag.setTag(tag);
-            return qnaHashtagRepository.save(newHashtag);  // 새로 생성하여 저장
-        }
     }
 
 }
