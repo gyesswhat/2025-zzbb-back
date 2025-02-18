@@ -5,7 +5,9 @@ import com.example.zzbb.hashtag.HashtagRepository;
 import com.example.zzbb.qna.dto.*;
 import com.example.zzbb.qna.entity.*;
 import com.example.zzbb.qna.repository.*;
+import com.example.zzbb.user.entity.Notice;
 import com.example.zzbb.user.entity.User;
+import com.example.zzbb.user.repository.NoticeRepository;
 import com.example.zzbb.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -29,6 +31,7 @@ public class QnaService {
     private final QnaLikeRepository qnaLikeRepository;
     private final QnaScrapRepository qnaScrapRepository;
     private final S3Service s3Service;
+    private final NoticeRepository noticeRepository;
 
     public ArrayList<BriefQnaResponse> viewBriefQna() {
         // 1. Qna 불러오기
@@ -182,7 +185,7 @@ public class QnaService {
         // 2. 저장
         QnaComment response = commentRepository.save(qnaComment);
         if (response == null) return null;
-
+        addCommentNotice(response.getQna(), response.getBody(), response.getUser());
         // 3. 반환
         return response;
     }
@@ -234,6 +237,34 @@ public class QnaService {
         // 7. QnaPostResponse 생성 및 반환
         QnaPostResponse qnaPostResponse = new QnaPostResponse(saved.getQnaId());
         return qnaPostResponse;
+    }
+
+    public ArrayList<QnaSearchResponse> searchQna(QnaSearchRequest request) {
+        return null;
+    }
+
+    public void addCommentNotice(Qna qna, String commentBody, User commentAuthor) {
+        // Qna 작성자에게 알림 생성
+        createNoticeForUser(qna.getUser(), qna, commentBody, false);
+
+        // Qna를 스크랩한 사용자들에게 알림 생성
+        for (QnaScrap qnaScrap : qna.getQnaScraps()) {
+            createNoticeForUser(qnaScrap.getUser(), qna, commentBody, true);
+        }
+    }
+
+    private void createNoticeForUser(User user, Qna qna, String commentBody, boolean isScraped) {
+        Notice notice = new Notice(
+                null,
+                user,
+                qna,
+                isScraped,
+                qna.getTitle(),
+                commentBody,
+                false,
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        );
+        noticeRepository.save(notice);  // 알림 저장
     }
 
 }
