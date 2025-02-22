@@ -239,10 +239,6 @@ public class QnaService {
         return qnaPostResponse;
     }
 
-    public ArrayList<QnaSearchResponse> searchQna(QnaSearchRequest request) {
-        return null;
-    }
-
     public void addCommentNotice(Qna qna, String commentBody, User commentAuthor) {
         // Qna 작성자에게 알림 생성
         createNoticeForUser(qna.getUser(), qna, commentBody, false);
