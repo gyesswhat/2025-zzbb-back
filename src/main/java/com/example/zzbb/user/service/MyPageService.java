@@ -153,14 +153,16 @@ public class MyPageService {
             nextLevelScore = getNextLevelScore(currentLevel); // 새로운 다음 레벨 점수
         }
 
+        User saved = null;
         // 4. 유저 정보 업데이트
         if (currentLevel != user.getLevel()) { // 레벨이 변경된 경우만 업데이트
             user.setLevel(currentLevel);
-            userRepository.save(user); // DB 반영
+            saved = userRepository.save(user); // DB 반영
         }
 
         // 5. 응답 생성 및 리턴
         MyLevelResponse response = new MyLevelResponse();
+        response.setCurrentLevel((saved != null)? saved.getLevel() : user.getLevel());
         response.setCurrentScore(currentScore);
         response.setNextLevelScore(nextLevelScore);
 

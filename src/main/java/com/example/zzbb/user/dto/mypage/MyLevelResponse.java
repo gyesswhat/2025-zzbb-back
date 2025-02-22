@@ -10,6 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MyLevelResponse {
+    private Integer currentLevel;
     private Integer currentScore;
     private Integer nextLevelScore;
 }
