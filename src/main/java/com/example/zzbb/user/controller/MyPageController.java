@@ -2,6 +2,7 @@ package com.example.zzbb.user.controller;
 
 import com.example.zzbb.global.ApiResponse;
 import com.example.zzbb.jwt.JwtUtil;
+import com.example.zzbb.user.dto.mypage.MyLevelResponse;
 import com.example.zzbb.user.dto.mypage.*;
 import com.example.zzbb.user.service.AuthService;
 import com.example.zzbb.user.service.MyPageService;
@@ -18,6 +19,19 @@ public class MyPageController {
     private final MyPageService myPageService;
     private final AuthService authService;
     private final JwtUtil jwtUtil;
+
+    @GetMapping("/user/my-page/level")
+    public ResponseEntity<ApiResponse<?>> getMyLevel(@RequestHeader("Authorization") String authorizationHeader) {
+        // 1. 필요한 정보 추출
+        String accessToken = jwtUtil.extractToken(authorizationHeader);
+        String username = jwtUtil.extractUsername(accessToken);
+        // 2. 서비스에서 처리
+        MyLevelResponse response = myPageService.getMyLevel(username);
+        // 3. 리턴
+        return (response != null)?
+                ResponseEntity.ok(ApiResponse.success(response)):
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(500, "레벨 불러오기에 실패했습니다."));
+    }
 
     @GetMapping("/user/my-page/history")
     public ResponseEntity<ApiResponse<?>> getMyHistory(@RequestHeader("Authorization") String authorizationHeader) {

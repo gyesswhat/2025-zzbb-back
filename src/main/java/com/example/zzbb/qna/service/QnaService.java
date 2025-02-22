@@ -134,12 +134,13 @@ public class QnaService {
             // 1. 새로운 Likes 생성
             QnaLike like = new QnaLike(null, targetQna, targetUser);
             // 2. 저장
-            QnaLike saved = qnaLikeRepository.save(like);
-            if (saved == null) return null;
-            else response = new QnaLikeResponse(true);
+            qnaLikeRepository.save(like);
+            targetUser.setScore(targetUser.getScore() + 5);
+            response = new QnaLikeResponse(true);
         }
 
         // 3. 반환
+        userRepository.save(targetUser);
         return response;
     }
 
@@ -158,12 +159,12 @@ public class QnaService {
         else {
             // 1. 새로운 Scrap 생성
             QnaScrap qnaScrap = new QnaScrap(null, targetQna, targetUser);
-            QnaScrap saved = qnaScrapRepository.save(qnaScrap);
-            // 2. 반환
-            if (saved == null) return null;
-            else response = new QnaScrapResponse(true);
+            qnaScrapRepository.save(qnaScrap);
+            targetUser.setScore(targetUser.getScore() + 5);
+            response = new QnaScrapResponse(true);
         }
         // 3. 반환
+        userRepository.save(targetUser);
         return response;
     }
 
@@ -184,6 +185,8 @@ public class QnaService {
 
         // 2. 저장
         QnaComment response = commentRepository.save(qnaComment);
+        targetUser.setScore(targetUser.getScore() + 15);
+        userRepository.save(targetUser);
         if (response == null) return null;
         addCommentNotice(response.getQna(), response.getBody(), response.getUser());
         // 3. 반환
@@ -199,7 +202,7 @@ public class QnaService {
         LocalDateTime localDateTime = LocalDateTime.now();
         String formattedTime = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-        // 3. 태그 처리: 이미 존재하는 태그를 찾거나 새로 생성하여 리스트에 추가
+        // 3. 태그 처리
         ArrayList<Hashtag> hashtags = new ArrayList<>();
         for (String hashtagTxt : request.getHashtags()) {
             Hashtag hashtag = hashtagRepository.findByTag(hashtagTxt).orElse(null);
@@ -223,6 +226,8 @@ public class QnaService {
 
         // 5. Qna 저장
         Qna saved = qnaRepository.save(qna);
+        targetUser.setScore(targetUser.getScore() + 10);
+        userRepository.save(targetUser);
         if (saved == null) return null;
 
         // 6. 이미지가 있다면 S3에 업로드
