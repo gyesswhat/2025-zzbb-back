@@ -55,7 +55,7 @@ public class DbController {
     }
 
     @PostMapping("/db/{dbId}/scrap")
-    public ResponseEntity<ApiResponse<?>> scrapQna(@RequestHeader("Authorization") String authorizationHeader,
+    public ResponseEntity<ApiResponse<?>> scrapDb(@RequestHeader("Authorization") String authorizationHeader,
                                                    @PathVariable("dbId") Integer qnaId) {
         // 1. 필요한 정보 추출
         String accessToken = jwtUtil.extractToken(authorizationHeader);
