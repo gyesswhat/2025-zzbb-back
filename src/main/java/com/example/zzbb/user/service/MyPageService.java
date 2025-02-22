@@ -11,6 +11,7 @@ import com.example.zzbb.qna.repository.CommentRepository;
 import com.example.zzbb.qna.repository.QnaLikeRepository;
 import com.example.zzbb.qna.repository.QnaRepository;
 import com.example.zzbb.qna.repository.QnaScrapRepository;
+import com.example.zzbb.user.dto.mypage.MyLevelResponse;
 import com.example.zzbb.user.dto.mypage.*;
 import com.example.zzbb.user.entity.User;
 import com.example.zzbb.user.repository.UserRepository;
@@ -134,5 +135,44 @@ public class MyPageService {
                 qnaLikes.size() + dbLikes.size() + qnaScraps.size() + dbScraps.size()
         );
         return response;
+    }
+
+    public MyLevelResponse getMyLevel(String username) {
+        // 1. 유저 정보 가져오기
+        User user = userRepository.findByUsername(username).orElse(null);
+        if (user == null) return null;
+
+        // 2. 현재 레벨과 점수 가져오기
+        int currentScore = user.getScore();
+        int currentLevel = user.getLevel();
+        int nextLevelScore = getNextLevelScore(currentLevel); // 다음 레벨 기준 점수 가져오기
+
+        // 3. 레벨 업 체크
+        while (nextLevelScore > 0 && currentScore >= nextLevelScore) {
+            currentLevel++; // 레벨 업
+            nextLevelScore = getNextLevelScore(currentLevel); // 새로운 다음 레벨 점수
+        }
+
+        // 4. 유저 정보 업데이트
+        if (currentLevel != user.getLevel()) { // 레벨이 변경된 경우만 업데이트
+            user.setLevel(currentLevel);
+            userRepository.save(user); // DB 반영
+        }
+
+        // 5. 응답 생성 및 리턴
+        MyLevelResponse response = new MyLevelResponse();
+        response.setCurrentScore(currentScore);
+        response.setNextLevelScore(nextLevelScore);
+
+        return response;
+    }
+
+    // 레벨별 기준 점수를 반환하는 메서드
+    private int getNextLevelScore(int level) {
+        switch (level) {
+            case 1: return 100;
+            case 2: return 300;
+            default: return 0; // 최대 레벨 도달 시 0 반환 (레벨 업 없음)
+        }
     }
 }

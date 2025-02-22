@@ -117,13 +117,13 @@ public class DbService {
         else {
             // 1. 새로운 Likes 생성
             DbLike like = new DbLike(null, targetDb, targetUser);
-            // 2. 저장
-            DbLike saved = dbLikeRepository.save(like);
-            if (saved == null) return null;
-            else response = new DbLikeResponse(true);
+            dbLikeRepository.save(like);
+            targetUser.setScore(targetUser.getScore() + 5);
+            response = new DbLikeResponse(true);
         }
 
         // 3. 반환
+        userRepository.save(targetUser);
         return response;
     }
 
@@ -142,12 +142,12 @@ public class DbService {
         else {
             // 1. 새로운 Scrap 생성
             DbScrap dbScrap = new DbScrap(null, targetDb, targetUser);
-            DbScrap saved = dbScrapRepository.save(dbScrap);
-            // 2. 반환
-            if (saved == null) return null;
-            else response = new DbScrapResponse(true);
+            dbScrapRepository.save(dbScrap);
+            targetUser.setScore(targetUser.getScore() + 5);
+            response = new DbScrapResponse(true);
         }
         // 3. 반환
+        userRepository.save(targetUser);
         return response;
     }
 }
