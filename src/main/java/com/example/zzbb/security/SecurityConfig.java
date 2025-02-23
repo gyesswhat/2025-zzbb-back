@@ -44,10 +44,10 @@ public class SecurityConfig {
         config.setAllowedHeaders(Collections.singletonList("*"));
         config.setAllowedMethods(Collections.singletonList("*"));
         config.setAllowedOriginPatterns(Arrays.asList(
-                "https://2025-zzbb.vercel.app/",
-                "http://localhost:5173/",
-                "http://localhost:3000/",
-                "https://2025-zzbb-back.site/")); // 허용할 origin
+                "https://2025-zzbb.vercel.app",
+                "http://localhost:5173",
+                "http://localhost:3000",
+                "https://2025-zzbb-back.site")); // 허용할 origin
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
