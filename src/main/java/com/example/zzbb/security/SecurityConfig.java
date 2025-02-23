@@ -42,7 +42,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type")); // 명확하게 지정
+        config.setAllowedHeaders(Arrays.asList("*"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // OPTIONS 포함
         config.setAllowedOriginPatterns(Arrays.asList(
                 "https://2025-zzbb.vercel.app",
@@ -59,10 +59,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf -> csrf.disable())
+                .securityMatcher("/**") // 모든 요청을 필터링 대상으로 지정
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정 적용
+                .csrf(csrf -> csrf.disable()) // CSRF 비활성화
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // OPTIONS 요청 허용
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/user/login").permitAll()
                         .requestMatchers("/user/logout").permitAll()
@@ -73,7 +75,7 @@ public class SecurityConfig {
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtil, userDetailsService, tokenBlacklistService), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(new Http403ForbiddenEntryPoint()) // 403 응답을 기본 처리
+                        .authenticationEntryPoint(new Http403ForbiddenEntryPoint()) // 403 응답 기본 처리
                         .accessDeniedHandler(customAccessDeniedHandler()) // 커스텀 AccessDeniedHandler 적용
                 )
                 .build();
