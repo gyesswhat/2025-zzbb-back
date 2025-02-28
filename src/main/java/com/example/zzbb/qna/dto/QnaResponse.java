@@ -16,7 +16,7 @@ public class QnaResponse {
     private Integer userId;
     private String title;
     private String body;
-    private ArrayList<String> hashtags;
+    private ArrayList<String> keyword;
     private ArrayList<String> imageUrls;
     private Integer numberOfComments;
     private Integer numberOfLikes;

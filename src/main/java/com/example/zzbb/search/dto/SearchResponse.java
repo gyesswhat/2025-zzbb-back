@@ -14,7 +14,7 @@ import java.util.ArrayList;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SearchResponse {
-    private ArrayList<String> hashtags;
+    private ArrayList<String> keyword;
     private ArrayList<QnaListResponse> qnas;
     private ArrayList<DbListResponse> dbs;
 }

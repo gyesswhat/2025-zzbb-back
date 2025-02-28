@@ -15,7 +15,7 @@ public class DbResponse {
     private Integer dbId;
     private String title;
     private String body;
-    private ArrayList<String> hashtags;
+    private ArrayList<String> keyword;
     private ArrayList<String> imageUrls;
     private Integer numberOfLikes;
     private Integer numberOfScraps;
