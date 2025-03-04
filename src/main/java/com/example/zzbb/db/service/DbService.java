@@ -75,10 +75,13 @@ public class DbService {
         return responses;
     }
 
-    public DbResponse viewDb(Integer dbId) {
+    public DbResponse viewDb(String username, Integer dbId) {
         // 1. Db 불러오기
         Db db = dbRepository.findById(dbId).orElse(null);
         if (db == null) return null;
+        User user = userRepository.findByUsername(username).orElse(null);
+        DbLike dbLike = dbLikeRepository.findByUserIdAndItemId(user, db).orElse(null);
+        DbScrap dbScrap = dbScrapRepository.findByUserIdAndItemId(user, db).orElse(null);
 
         ArrayList<String> dbHashTagResponse = new ArrayList<>();
         ArrayList<String> dbImageResponse = new ArrayList<>();
@@ -95,7 +98,9 @@ public class DbService {
                 dbHashTagResponse,
                 dbImageResponse,
                 db.getDbLikes().size(),
-                db.getDbScraps().size()
+                db.getDbScraps().size(),
+                (dbLike != null)? true : false,
+                (dbScrap != null)? true : false
         );
 
         // 3. 반환

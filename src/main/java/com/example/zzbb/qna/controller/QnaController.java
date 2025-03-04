@@ -39,8 +39,12 @@ public class QnaController {
     }
 
     @GetMapping("/qna/{qnaId}")
-    public ResponseEntity<ApiResponse<?>> viewQna(@PathVariable("qnaId") Integer qnaId) {
-        QnaResponse response = qnaService.viewQna(qnaId);
+    public ResponseEntity<ApiResponse<?>> viewQna(@RequestHeader("Authorization") String authorizationHeader,
+                                                  @PathVariable("qnaId") Integer qnaId) {
+        // 1. 필요한 정보 추출
+        String accessToken = jwtUtil.extractToken(authorizationHeader);
+        String username = jwtUtil.extractUsername(accessToken);
+        QnaResponse response = qnaService.viewQna(username, qnaId);
         return response != null?
                 ResponseEntity.ok(ApiResponse.success(response)):
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(404, "데이터가 없습니다."));

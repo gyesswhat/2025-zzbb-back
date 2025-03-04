@@ -79,10 +79,14 @@ public class QnaService {
         return responses;
     }
 
-    public QnaResponse viewQna(Integer qnaId) {
+    public QnaResponse viewQna(String username, Integer qnaId) {
         // 1. Qna 불러오기
         Qna qna = qnaRepository.findById(qnaId).orElse(null);
         if (qna == null) return null;
+        User user = userRepository.findByUsername(username).orElse(null);
+        QnaLike myLike = qnaLikeRepository.findByUserIdAndItemId(user, qna).orElse(null);
+        QnaScrap myScrap = qnaScrapRepository.findByUserIdAndItemId(user, qna).orElse(null);
+        ArrayList<QnaComment> myComment = commentRepository.findByUserIdAndItemId(user, qna);
 
         // 2. 객체 처리
         ArrayList<String> qnaHashtagResponse = new ArrayList<>();
@@ -111,7 +115,10 @@ public class QnaService {
                 qna.getQnaComments().size(),
                 qna.getQnaLikes().size(),
                 qna.getQnaScraps().size(),
-                qnaCommentResponse
+                qnaCommentResponse,
+                (myLike != null)? true : false,
+                (myScrap != null)? true : false,
+                (!myComment.isEmpty())? true : false
         );
 
         // 3. 반환

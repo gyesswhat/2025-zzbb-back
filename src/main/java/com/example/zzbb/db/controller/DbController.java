@@ -34,8 +34,12 @@ public class DbController {
     }
 
     @GetMapping("/db/{dbId}")
-    public ResponseEntity<ApiResponse<?>> viewDb(@PathVariable("dbId") Integer dbId) {
-        DbResponse response = dbService.viewDb(dbId);
+    public ResponseEntity<ApiResponse<?>> viewDb(@RequestHeader("Authorization") String authorizationHeader,
+                                                 @PathVariable("dbId") Integer dbId) {
+        // 1. 필요한 정보 추출
+        String accessToken = jwtUtil.extractToken(authorizationHeader);
+        String username = jwtUtil.extractUsername(accessToken);
+        DbResponse response = dbService.viewDb(username, dbId);
         return response != null?
                 ResponseEntity.ok(ApiResponse.success(response)):
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(404, "데이터가 없습니다."));

@@ -22,4 +22,7 @@ public class QnaResponse {
     private Integer numberOfLikes;
     private Integer numberOfScraps;
     private ArrayList<CommentDto> comments;
+    private Boolean isLiked;
+    private Boolean isScraped;
+    private Boolean isCommented;
 }
